@@ -7,15 +7,15 @@
 <?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
-<?import javafx.scene.control.TableColumn?>
-<?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TreeView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane prefHeight="498.0" prefWidth="704.0" xmlns="http://javafx.com/javafx/8.0.60" xmlns:fx="http://javafx.com/fxml/1" fx:controller="view.HomeController">
+<BorderPane prefHeight="600.0" prefWidth="850.0" xmlns="http://javafx.com/javafx/8.0.60" xmlns:fx="http://javafx.com/fxml/1" fx:controller="view.HomeController">
 
     <top>
         <MenuBar prefHeight="25.0" prefWidth="704.0" BorderPane.alignment="CENTER">
@@ -24,7 +24,8 @@
                     <items>
                         <MenuItem mnemonicParsing="false" text="New" />
                         <MenuItem mnemonicParsing="false" text="Open..." />
-                        <MenuItem fx:id="save" mnemonicParsing="false" onAction="#save" text="Save" />
+                        <MenuItem fx:id="save" mnemonicParsing="false" onAction="#save" text="Save to.." />
+                  <MenuItem fx:id="genHTML" mnemonicParsing="false" onAction="#saveHTML" text="Save as HTML" />
                         <MenuItem fx:id="cancel" mnemonicParsing="false" onAction="#close" text="Close" />
                     </items>
                 </Menu>
@@ -69,6 +70,7 @@
                         <Font size="45.0" />
                     </font>
                 </Label>
+            <Button fx:id="container" mnemonicParsing="false" prefHeight="25.0" prefWidth="153.0" text="Container" />
                 <Button fx:id="textField" mnemonicParsing="false" prefHeight="25.0" prefWidth="152.0" text="TextField" />
                 <Button fx:id="textArea" mnemonicParsing="false" prefHeight="25.0" prefWidth="151.0" text="TextArea" />
                 <Button fx:id="button" mnemonicParsing="false" prefHeight="25.0" prefWidth="152.0" text="Button" />
@@ -77,17 +79,17 @@
             </children>
         </VBox>
     </left>
-   <bottom>
-          <TableView prefHeight="123.0" prefWidth="651.0" BorderPane.alignment="CENTER">
-              <columns>
-                  <TableColumn prefWidth="71.0" text="item" />
-                  <TableColumn prefWidth="96.0" text="id" />
-            <TableColumn prefWidth="96.0" text="height" />
-            <TableColumn prefWidth="96.0" text="weight" />
-            <TableColumn prefWidth="96.0" text="color" />
-            <TableColumn prefWidth="96.0" text="value" />
-            <TableColumn prefWidth="96.0" text="height" />
-              </columns>
-          </TableView>
-   </bottom>
+   <right>
+      <VBox prefHeight="452.0" prefWidth="169.0" BorderPane.alignment="CENTER">
+         <children>
+            <TreeView fx:id="tree" prefHeight="551.0" prefWidth="169.0" />
+            <HBox prefHeight="29.0" prefWidth="169.0">
+               <children>
+                  <Button fx:id="delete" mnemonicParsing="false" prefHeight="25.0" prefWidth="92.0" text="Delete" />
+                  <Button fx:id="deleteAll" mnemonicParsing="false" prefHeight="25.0" prefWidth="87.0" text="Delete All" />
+               </children>
+            </HBox>
+         </children>
+      </VBox>
+   </right>
 </BorderPane>

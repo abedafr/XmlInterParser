@@ -5,18 +5,20 @@
  */
 package view;
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.Cursor;
 import javafx.scene.control.Button;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextArea;
-import javafx.scene.input.MouseEvent;
+import javafx.scene.control.TreeItem;
+import javafx.scene.control.TreeView;
 import javafx.scene.layout.AnchorPane;
+import javafx.stage.FileChooser;
 import util.SaveUtil;
 
 /**
@@ -25,7 +27,7 @@ import util.SaveUtil;
  * @author Abed
  */
 public class HomeController implements Initializable {
-    
+
     @FXML
     private TextArea finalText;
     @FXML
@@ -44,91 +46,145 @@ public class HomeController implements Initializable {
     private MenuItem save = new MenuItem();
     @FXML
     private AnchorPane designArea;
+    @FXML
+    private Button container;
+    @FXML
+    private TreeView<String> tree;
+
+    private TreeItem<String> root;
+    @FXML
+    private Button delete;
+    @FXML
+    private Button deleteAll;
+    @FXML
+    private MenuItem genHTML;
 
     /**
      * Initializes the controller class.
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        finalText.setText("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<fenetre>\n");
+        root = new TreeItem<>("Fenetre");
+//        tree = new TreeView<>(root);
+        tree.setRoot(root);
+        root.setExpanded(true);
+        System.out.println("tree " + tree.getRoot());
+        textField.setOnAction(a -> {
+            addTreeItem("TextField");
+            finalText.setText("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + genXml());
+        });
         textArea.setOnAction(a -> {
-            finalText.appendText("<texta></texta>");
-            finalText.appendText("\n");
+            addTreeItem("TextArea");
+            finalText.setText("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + genXml());
         });
         button.setOnAction(a -> {
-            finalText.appendText("<botona></botona>");
-            finalText.appendText("\n");
+            addTreeItem("Button");
+            finalText.setText("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + genXml());
         });
         checkBox.setOnAction(a -> {
-            finalText.appendText("<checkboxa></checkboxa>");
-            finalText.appendText("\n");
+            addTreeItem("CheckButton");
+            finalText.setText("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + genXml());
         });
         comboBox.setOnAction(a -> {
-            finalText.appendText("<comboxa></comboxa>");
-            finalText.appendText("\n");
+            addTreeItem("ComboBox");
+            finalText.setText("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + genXml());
         });
-        textField.setOnAction(a -> {
-            finalText.appendText("<textfilda></textfilda>");
-            finalText.appendText("\n");
+
+        container.setOnAction(a -> {
+            addTreeItem("Container");
+            finalText.setText("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + genXml());
         });
-        textField.setOnMouseEntered(mouseEvent -> {
-            if (!mouseEvent.isPrimaryButtonDown()) {
-                textField.getScene().setCursor(Cursor.HAND);
-            }
-        });
-        
-        textField.setOnMousePressed(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent mouseEvent) {
-                // record a delta distance for the drag and drop operation.
-//                dragDelta.x = textField.getCenterX() - mouseEvent.getX();
-//                dragDelta.y = textField.getCenterY() - mouseEvent.getY();
-                System.out.println("on mouse pressed");
-                textField.getScene().setCursor(Cursor.MOVE);
-            }
-        });
-        textField.setOnMouseReleased(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent mouseEvent) {
-                textField.getScene().setCursor(Cursor.HAND);
-            }
-        });
-        textField.setOnMouseDragged(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent mouseEvent) {
-//    textField.setCenterX(mouseEvent.getX() + dragDelta.x);
-//    textField.setCenterY(mouseEvent.getY() + dragDelta.y);
-                System.out.println("on mouse dragged");
-            }
-        });
-        textField.setOnMouseEntered(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent mouseEvent) {
-                if (!mouseEvent.isPrimaryButtonDown()) {
-                    textField.getScene().setCursor(Cursor.HAND);
+
+        delete.setOnAction(a -> {
+            TreeItem<String> selected = tree.getSelectionModel().getSelectedItem();
+            if (selected != null) {
+                if (!selected.isLeaf()) {
+                    Platform.runLater(() -> {
+                        selected.getChildren().stream().forEach((object) -> {
+                            selected.getChildren().remove(object);
+                        });
+                    });
                 }
+                selected.getParent().getChildren().remove(selected);
+                tree.refresh();
+                finalText.setText("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + genXml());
             }
         });
-        textField.setOnMouseExited(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent mouseEvent) {
-                if (!mouseEvent.isPrimaryButtonDown()) {
-                    textField.getScene().setCursor(Cursor.DEFAULT);
-                }
-            }
+        deleteAll.setOnAction(a -> {
+            tree.setRoot(new TreeItem<>("Fenetre"));
+            finalText.setText("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + genXml());
+
         });
-        
-    }
-    
-    public void save(ActionEvent ae) {
-        if (!finalText.getText().endsWith("</fenetre>")) {
-            finalText.appendText("\n</fenetre>");
-        }
-        SaveUtil.saveFile(finalText.getText(), "xmlfile.xml");
     }
 
+    public void addTreeItem(String value) {
+        if (tree.getSelectionModel().getSelectedItem() != null) {
+            if ("Container".equals(tree.getSelectionModel().getSelectedItem().getValue())) {
+                tree.getSelectionModel().getSelectedItem().getChildren().add(new TreeItem<>(value));
+            } else {
+                if (!"Fenetre".equals(tree.getSelectionModel().getSelectedItem().getValue())) {
+                    tree.getSelectionModel().select(tree.getSelectionModel().getSelectedItem().getParent());
+                }
+                tree.getSelectionModel().getSelectedItem().getChildren().add(new TreeItem<>(value));
+                tree.getSelectionModel().getSelectedItem().setExpanded(true);
+            }
+        } else {
+            tree.getSelectionModel().select(root);
+            tree.getSelectionModel().getSelectedItem().getChildren().add(new TreeItem<>(value));
+            tree.getSelectionModel().getSelectedItem().setExpanded(true);
+        }
+        tree.setRoot(root);
+
+    }
+
+    public String genXml() {
+        String xmlGen = "";
+        xmlGen += iterXml(tree.getRoot(), xmlGen);
+        int i = xmlGen.lastIndexOf("<fenetre>");
+        xmlGen = xmlGen.substring(i, xmlGen.length());
+        return xmlGen;
+    }
+
+    public String iterXml(TreeItem<String> racine, String xmlText) {
+        xmlText += "<" + racine.getValue().toLowerCase() + ">\n";
+        for (TreeItem<String> item : racine.getChildren()) {
+            xmlText += "\t";
+            if (item.getChildren().isEmpty()) {
+                xmlText += "<" + item.getValue().toLowerCase() + ">";
+                xmlText += "</" + item.getValue().toLowerCase() + ">\n";
+            } else {
+                xmlText += "\t" + iterXml(item, xmlText);
+            }
+        }
+        xmlText += "</" + racine.getValue().toLowerCase() + ">\n";
+        return xmlText;
+    }
+
+    private static void configureFileChooser(final FileChooser fileChooser) {
+        fileChooser.setTitle("Open Text File");
+//            fileChooser.setInitialDirectory(
+//                new File(System.getProperty("user.home"))
+//            );                 
+        fileChooser.getExtensionFilters().addAll(
+                //                new FileChooser.ExtensionFilter("All Images", "*.*"),
+                //                new FileChooser.ExtensionFilter("JPG", "*.jpg"),
+                new FileChooser.ExtensionFilter("Text Files", "*.txt")
+        );
+    }
+
+    @FXML
+    public void save(ActionEvent ae) throws IOException {
+        SaveUtil.saveAs(finalText.getText(), "xmlfile.xml");
+    }
+
+    @FXML
     public void close(ActionEvent ae) {
         System.exit(0);
     }
-    
+
+    @FXML
+    private void saveHTML(ActionEvent event) {
+        // fetah
+    }
+
 }

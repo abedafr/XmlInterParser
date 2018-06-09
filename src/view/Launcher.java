@@ -21,6 +21,7 @@ public class Launcher extends Application {
     @Override
     public void start(Stage stage) throws IOException {
         stage.setTitle("aXML - By Abed & Fetah");
+        util.Session.setAttribut(stage, "stage"); 
         Parent root = FXMLLoader.load(getClass().getResource("Home.fxml"));
         Scene scene = new Scene(root);
         stage.setScene(scene);
